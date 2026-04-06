@@ -1,0 +1,34 @@
+import { useState, useEffect } from 'react'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { supabase } from './lib/supabase'
+import AuthPage from './pages/AuthPage'
+import Dashboard from './pages/Dashboard'
+import './App.css'
+export default function App() {
+const [session, setSession] = useState(null)
+const [loading, setLoading] = useState(true)
+useEffect(() => {
+supabase.auth.getSession().then(({ data: { session } }) => {
+setSession(session)
+setLoading(false)
+})
+const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+setSession(session)
+})
+}, [])
+return () => subscription.unsubscribe()
+if (loading) return (
+<div className="splash">
+<div className="splash-logo">PROPVAULT</div>
+<div className="splash-sub">Loading your empire...</div>
+</div>
+)
+return (
+<BrowserRouter>
+<Routes>
+</Routes>
+</BrowserRouter>
+<Route path="/auth" element={!session ? <AuthPage /> : <Navigate to="/" />} />
+<Route path="/" element={session ? <Dashboard session={session} /> : <Navigate to="/a
+)
+}
