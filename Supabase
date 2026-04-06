@@ -1,0 +1,55 @@
+import { createClient } from '@supabase/supabase-js'
+const supabaseUrl = process.env.REACT_APP_SUPABASE_URL
+const supabaseKey = process.env.REACT_APP_SUPABASE_ANON_KEY
+export const supabase = createClient(supabaseUrl, supabaseKey)
+export const signUpEmail = (email, password) =>
+supabase.auth.signUp({ email, password })
+export const signInEmail = (email, password) =>
+supabase.auth.signInWithPassword({ email, password })
+export const signInGoogle = () =>
+supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.
+export const signOut = () => supabase.auth.signOut()
+export const getAccounts = async (userId) => {
+const { data, error } = await supabase
+.from('accounts')
+.select('*')
+.eq('user_id', userId)
+.order('created_at', { ascending: false })
+if (error) throw error
+return data
+}
+export const upsertAccount = async (account) => {
+const { data, error } = await supabase
+.from('accounts')
+.upsert(account, { onConflict: 'id' })
+.select()
+.single()
+if (error) throw error
+return data
+}
+export const deleteAccount = async (id) => {
+const { error } = await supabase.from('accounts').delete().eq('id', id)
+if (error) throw error
+}
+export const getTransactions = async (userId) => {
+const { data, error } = await supabase
+.from('transactions')
+.select('*')
+.eq('user_id', userId)
+.order('created_at', { ascending: false })
+if (error) throw error
+return data
+}
+export const addTransaction = async (tx) => {
+const { data, error } = await supabase
+.from('transactions')
+.insert(tx)
+.select()
+.single()
+if (error) throw error
+return data
+}
+export const deleteTransaction = async (id) => {
+const { error } = await supabase.from('transactions').delete().eq('id', id)
+if (error) throw error
+}
